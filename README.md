@@ -1,3 +1,3 @@
 # metagenomic-tools
 
-Pipeline and wrappers for matagenomic analysis
+Pipeline and wrappers for metagenomic analysis

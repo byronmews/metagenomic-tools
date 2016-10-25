@@ -10,6 +10,8 @@ samples_in={
 	doc "List all input PE fastq files"
 		
 	exec "echo R1: $input1 R2: $input2"
+
+	forward input1, input2
 }
 
 // Kraken PE mode
@@ -34,9 +36,9 @@ kraken={
 		--check-names
 		--fastq-input
 		--paired
-		--unclassified-out $output1
+		--unclassified-out $output1.unclassified.fasta
 		$input1.fastq $input2.fastq
-		--output $output2
+		--output $output2.kraken.out.txt
 		"""
 	}
 }

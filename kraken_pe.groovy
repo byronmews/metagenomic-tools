@@ -46,8 +46,8 @@ kraken={
 // Report standard format. Using --show-zerosopt for cross sample comparison
 kraken_report={
 	
-	transform(".kraken.out.txt") to (".kraken.report.txt")
-	{
+	transform(".kraken.out.txt") to (".kraken.report.txt") {
+		
 		exec "kraken-report --show-zeros --db $KRAKEN_CUSTOM_DB $input.kraken.out.txt > $output.kraken.report.txt"
 	}
 	forward input.kraken.out.txt
@@ -56,8 +56,8 @@ kraken_report={
 // Report also using metaphlan format
 kraken_mpa_report={
 	
-	transform(".out.txt") to (".report_mpa.txt")
-	{
+	transform(".out.txt") to (".report_mpa.txt") {
+		
 		exec "kraken-mpa-report --db $KRAKEN_CUSTOM_DB $input.kraken.out.txt > $output.kraken.report_mpa.txt"
 	}
 	forward input.kraken.out.txt

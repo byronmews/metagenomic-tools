@@ -1,6 +1,9 @@
 // Classification of unassembled reads using Kraken and post data processing
 //
 // Workflow: Kraken > Reporting > Krona Chart generation
+// Usage: bpipe run -r kraken_pe.groovy *
+// Author: Graham Rose
+//
 
 KRAKEN_CUSTOM_DB="/srv/data0/dbs/kraken/standard_plus_1/"
 

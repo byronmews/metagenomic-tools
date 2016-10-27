@@ -1,8 +1,7 @@
-# metagenomic-tools
-
 Pipeline and wrappers for metagenomic analysis
+--------------
 
-Usage examples
+Usage examples:
 --------------
 
 1. Kraken using bpipe workflow

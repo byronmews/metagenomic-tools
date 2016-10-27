@@ -3,6 +3,8 @@
 // Multiple file input mode run as: 
 //			bpipe run metaphlan2_run.py * 
 //
+// Requires: metaphlan_to_stamp.pl
+
 
 METAPHLAN_DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200.pkl"
 BOWTIE2DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200"
@@ -46,7 +48,7 @@ merge_tables={
 }
 
 // Basic heatmaps of merged tables
-hclust={
+heatmap={
 	
 	doc = "Metaphlan utils cluster samples"
 
@@ -55,32 +57,46 @@ hclust={
 
 	// Output dir
 	output.dir = "heatmaps"
-	
+
 	// Produce filenames using above map values
-	transform(".txt") to ("") {
-	
-	levels.each { id, tax_level ->
-	
-		exec """
-		metaphlan_hclust_heatmap.py
-		--in $input.txt
-		-m average
-		-d braycurtis
-		-f correlation
-		--minv 0
-		-c bbcry
-		--top 25
-		--tax_lev ${id}
-		--out ${output}.${tax_level}.png
-		"""
+	produce("*") {
+		
+		levels.each { id, tax_level ->
+
+			exec """
+			metaphlan_hclust_heatmap.py
+			--in $input.txt
+			-m average
+			-d braycurtis
+			-f correlation
+			--minv 0
+			-c bbcry
+			--top 25
+			--tax_lev ${id}
+			--out ${output}.${tax_level}.png
+			"""
 		}
 	}
+	forward input.profiled_metagenome.txt
 }
+
+// Output table in STAMP spf input
+convert_to_stamp={
+
+	doc "Convert combined profile output to STAMP ready format"
+
+	transform(".txt") to (".stamp.spf") {
+
+		exec "perl metaphlan_to_stamp.pl $input.profiled_metagenome.txt > $output.stamp.spf"	
+	
+	}
+}
+
 
 // Multiple samples where file names begin with sample name separated by regex
 // such as: 1-2_S2_L001_R1_001.fastq)
 Bpipe.run {
-	"%_S*.fastq" * [ metaphlan ] + merge_tables + hclust
+	"%_S*.fastq" * [ metaphlan ] + merge_tables + heatmap + convert_to_stamp
 
 }
 

@@ -68,6 +68,9 @@ krona={
 	exec "cut -f2,3 $input.kraken.out.txt | ktImportTaxonomy - -o $output.html "
 }
 
+
+
+
 // Run as single sample
 //Bpipe.run {
 //	samples_in + kraken + kraken_report + kraken_mpa_report + krona

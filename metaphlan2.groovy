@@ -1,10 +1,10 @@
-// Metaphlan2 PE mode for qc passed and screened PE read
+// Metaphlan2 PE run for qc passed and screened reads
 //
-// Multiple file input mode run as: 
-//			bpipe run metaphlan2_run.py * 
+// Usage: bpipe run metaphlan2_run.py *
+// Author: Graham Rose
 //
-// Requires: metaphlan_to_stamp.pl from https://github.com/mlangill/microbiome_helper/
-//
+
+// Requires: metaphlan_to_stamp.pl (from https://github.com/mlangill/microbiome_helper/)
 
 METAPHLAN_DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200.pkl"
 BOWTIE2DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200"
@@ -80,7 +80,7 @@ heatmap={
 	forward input.profiled_metagenome.txt
 }
 
-// Output table in STAMP spf format
+// Output table in STAMP spf format using mlangill included script
 convert_to_stamp={
 
 	doc "Convert combined profile output to STAMP ready format"

@@ -5,7 +5,8 @@ Pipeline and wrappers for metagenomic analysis
 Usage examples
 --------------
 
-1. Run Kraken using bpipe workflow.
+1. Kraken using bpipe workflow
+--------------
 Expects PE fastq files. All PE fastq within folder are analysed, using the string before illumina sample index number as sample ID.
 
   $ bpipe run -r kraken_pe.groovy *
@@ -17,8 +18,8 @@ Produces standard Kraken output and additional charts, with the suffixes:
 - kraken.report.txt, kraken.report_mpa.txt: kraken and mpa format reports
 - kraken.out.krona.html: Krona Chart of taxonomic distributions
 
-
-2. Run Metaphlan2 using bpipe.
+2. Metaphlan2 using bpipe
+--------------
 Expects PE fastq files. All PE fastq within folder are analysed, using the string before illumina sample index number as sample ID.
 
   $ bpipe run -r metaphlan2.groovy *

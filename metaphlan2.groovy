@@ -3,8 +3,8 @@
 // Multiple file input mode run as: 
 //			bpipe run metaphlan2_run.py * 
 //
-// Requires: metaphlan_to_stamp.pl
-
+// Requires: metaphlan_to_stamp.pl from https://github.com/mlangill/microbiome_helper/
+//
 
 METAPHLAN_DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200.pkl"
 BOWTIE2DB="/srv/data0/dbs/metaphlan2/db_v20/mpa_v20_m200"
@@ -57,10 +57,10 @@ heatmap={
 
 	// Output dir
 	output.dir = "heatmaps"
-
+	
 	// Produce filenames using above map values
 	produce("*") {
-		
+
 		levels.each { id, tax_level ->
 
 			exec """
@@ -80,7 +80,7 @@ heatmap={
 	forward input.profiled_metagenome.txt
 }
 
-// Output table in STAMP spf input
+// Output table in STAMP spf format
 convert_to_stamp={
 
 	doc "Convert combined profile output to STAMP ready format"

@@ -19,6 +19,9 @@ Produces standard Kraken output and additional charts, with the suffixes:
 
 2. Metaphlan2 using bpipe
 --------------
+
+Requires: metaphlan_to_stamp.pl
+
 Expects PE fastq files. All PE fastq within folder are analysed, using the string before illumina sample index number as sample ID.
 
   $ bpipe run -r metaphlan2.groovy *

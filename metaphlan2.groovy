@@ -77,7 +77,6 @@ heatmap={
 			"""
 		}
 	}
-	forward input.profiled_metagenome.txt
 }
 
 // Output table in STAMP spf format using mlangill included script
@@ -87,7 +86,7 @@ convert_to_stamp={
 
 	transform(".txt") to (".stamp.spf") {
 
-		exec "perl metaphlan_to_stamp.pl $input.profiled_metagenome.txt > $output.stamp.spf"	
+		exec "perl metaphlan_to_stamp.pl merged_abundance_table.txt > merged_abundance_table.stamp.spf"	
 	
 	}
 }

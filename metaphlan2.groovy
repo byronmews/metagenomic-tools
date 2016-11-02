@@ -1,6 +1,6 @@
 // Metaphlan2 PE run for qc passed and screened reads
 //
-// Usage: bpipe run metaphlan2_run.py *
+// Usage: bpipe run metaphlan2.py *
 // Author: Graham Rose
 //
 

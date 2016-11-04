@@ -4,7 +4,10 @@
 // Author: Graham Rose
 //
 
+import groovy.io.FileType
+
 MAPPING_FILE="faecal_dataset_N73_meta.tsv"
+CHIMERA_DB="/usr/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta"
 
 
 // Validate mapping file, ignore barcode errors
@@ -27,7 +30,7 @@ qiime_split={
 	("slout")
 	]
 	
-	// First block. Write two files, striping first header line in $MAPPING_FILE
+	// First block. Write two files, stripping first header line in $MAPPING_FILE
 	produce(products) {
 		exec "awk '{if (NR!=1) {print \$1}}' $MAPPING_FILE | tr '\\n' ',' > $output1"
 		exec "awk '{if (NR!=1) {print \$10}}' $MAPPING_FILE | tr '\\n' ',' > $output2"
@@ -59,15 +62,61 @@ qiime_split={
 	}	
 }
 
-// Remove chimeras, using the unclustered demultiplexed sequences
+// Remove chimeras, using the unclustered demultiplexed sequences. Splits input to avoid  out of memory error
 chimera_removal={
 
+	doc "Remove chimeric sequences using usearch61 and greengenes db"
+
+	// Chimera output dir
+	output.dir = "chimera_checked"	
+	exec "mkdir -p $output.dir"	
+
+	// Split combined fasta into files with 1M seqs, mv to new dir
+	exec "split -l 2000000 --additional-suffix .fna slout/seqs.fna chunk_ ; mv chunk* chimera_checked"
+
+	// Cycle split fastas in dir, using suffix to find file
+	newDir = new File("chimera_checked")
+	def seqs = ~/.*.fna/
+	newDir.eachFileMatch(seqs) { file ->
+		
+		println file.getName()
+		
+		// Remove .fna suffix and create new dir
+		chimeraSplitDirName = file.getName()
+		chimeraSplitDirName = chimeraSplitDirName.substring(0, chimeraSplitDirName.length() - 4)
+		chimeraSplitDir = new File("chimera_checked/$chimeraSplitDirName")
+		
+		// Run usearch61 sequentially on splits, use multithreading
+		produce("$newDir/combined_chimeras.txt") {
+			exec """
+				identify_chimeric_seqs.py -i $file
+				-m usearch61
+				--threads 12
+				-o $chimeraSplitDir
+				-r $CHIMERA_DB
+			"""
+	
+			// Merge indentified chimeras
+			exec "cat $chimeraSplitDir/chimeras.txt >> $newDir/combined_chimeras.txt"
+		}
+	}
+}
+
+filter_fasta={
+	
+	doc "Filter fasta of chimeric sequences"
+
+	output.dir = "slout"	
+
+	exec """
+		filter_fasta.py -f slout/seqs.fna
+		-o $output.dir/seqs_chimeras_filtered.fna
+		-s chimera_checked/combined_chimeras.txt -n
+	"""
 }
 
 
-
-
-
+// No input, runs off qiime sample sheet, parallelism where possible
 Bpipe.run {
-	validate_mapping + qiime_split
+	validate_mapping + qiime_split + chimera_removal + filter_fasta
 }

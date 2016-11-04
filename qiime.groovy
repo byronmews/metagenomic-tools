@@ -75,19 +75,20 @@ chimera_removal={
 	exec "split -l 2000000 --additional-suffix .fna slout/seqs.fna chunk_ ; mv chunk* chimera_checked"
 
 	// Cycle split fastas in dir, using suffix to find file
-	newDir = new File("chimera_checked")
-	def seqs = ~/.*.fna/
-	newDir.eachFileMatch(seqs) { file ->
+	produce("$newDir/combined_chimeras.txt") {
+
+		newDir = new File("chimera_checked")
+		def seqs = ~/.*.fna/
+		newDir.eachFileMatch(seqs) { file ->
 		
-		println file.getName()
+			println file.getName()
 		
-		// Remove .fna suffix and create new dir
-		chimeraSplitDirName = file.getName()
-		chimeraSplitDirName = chimeraSplitDirName.substring(0, chimeraSplitDirName.length() - 4)
-		chimeraSplitDir = new File("chimera_checked/$chimeraSplitDirName")
+			// Remove .fna suffix and create new dir
+			chimeraSplitDirName = file.getName()
+			chimeraSplitDirName = chimeraSplitDirName.substring(0, chimeraSplitDirName.length() - 4)
+			chimeraSplitDir = new File("chimera_checked/$chimeraSplitDirName")
 		
-		// Run usearch61 sequentially on splits, use multithreading
-		produce("$newDir/combined_chimeras.txt") {
+			// Run usearch61 sequentially on splits, use multithreading
 			exec """
 				identify_chimeric_seqs.py -i $file
 				-m usearch61
@@ -116,7 +117,25 @@ filter_fasta={
 }
 
 
+pick_otus={
+
+	doc "Pick OTUs using open reference method and GreenGenes database clusted at 97% sequence identity"
+
+	exec """
+		pick_open_reference_otus.py
+		--parallel
+		--jobs_to_start 10
+		-o otus
+		-i slout/seqs_chimeras_filtered.fna
+		-p qiime_parameter_file.txt
+	"""
+
+
+}
+
+
+
 // No input, runs off qiime sample sheet, parallelism where possible
 Bpipe.run {
-	validate_mapping + qiime_split + chimera_removal + filter_fasta
+	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus
 }

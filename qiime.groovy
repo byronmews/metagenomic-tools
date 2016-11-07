@@ -1,12 +1,11 @@
 // QIIME PE run for qc passed, screened reads and joined
 //
-// Usage: bpipe run qiime.py *
+// Usage: bpipe run qiime.py my_qiime_mapping_file.tsv
 // Author: Graham Rose
 //
 
 import groovy.io.FileType
 
-MAPPING_FILE="faecal_dataset_N73_meta.tsv"
 CHIMERA_DB="/usr/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta"
 SUBSAMPLE_DEPTH="5000"
 
@@ -16,7 +15,9 @@ validate_mapping={
 	
 	doc "Run validation of mapping file"
 
-	exec "validate_mapping_file.py -o mapping_file_check -m $MAPPING_FILE -b -j Description"
+	exec "validate_mapping_file.py -o mapping_file_check -m $input -b -j Description"
+
+	forward input
 }
 
 // Split fastqs ignoring demultiplexing option. Names extracted from mapping file.
@@ -33,8 +34,8 @@ qiime_split={
 	
 	// First block. Write two files, stripping first header line in $MAPPING_FILE
 	produce(products) {
-		exec "awk '{if (NR!=1) {print \$1}}' $MAPPING_FILE | tr '\\n' ',' > $output1"
-		exec "awk '{if (NR!=1) {print \$10}}' $MAPPING_FILE | tr '\\n' ',' > $output2"
+		exec "awk '{if (NR!=1) {print \$1}}' $input | tr '\\n' ',' > $output1"
+		exec "awk '{if (NR!=1) {print \$10}}' $input | tr '\\n' ',' > $output2"
 	}
 
 	// Read files to vars, removing orphan comman char in string
@@ -56,14 +57,16 @@ qiime_split={
 		-i $sampleFastqs
 		--sample_id $sampleIDs 
 		-o $output3 
-		-m $MAPPING_FILE
+		-m $input
 		-q 19 
 		--barcode_type 'not-barcoded'
 		"""
-	}	
+	}
+	forward input
 }
 
-// Remove chimeras, using the unclustered demultiplexed sequences. Splits input to avoid  out of memory error
+// Remove chimeras, using the unclustered demultiplexed sequences
+// Splits sequence set to avoid out of memory errors as only 32bit usearch in use
 chimera_removal={
 
 	doc "Remove chimeric sequences using usearch61 and greengenes db"
@@ -99,11 +102,15 @@ chimera_removal={
 			"""
 	
 			// Merge indentified chimeras
-			exec "cat $chimeraSplitDir/chimeras.txt >> $newDir/combined_chimeras.txt"
+			//exec "cat $chimeraSplitDir/chimeras.txt >> $newDir/combined_chimeras.txt"
 		}
+		// Merge indentified chimeras
+		exec "cat chimera_checked/*/chimeras.txt >> $newDir/combined_chimeras.txt"
 	}
+	forward input
 }
 
+// Remove chimeric reads from sequence set
 filter_fasta={
 	
 	doc "Filter fasta of chimeric sequences"
@@ -118,9 +125,10 @@ filter_fasta={
 			-s chimera_checked/combined_chimeras.txt -n
 		"""
 	}
+	forward input
 }
 
-
+// Pick OTUs using open reference method and Greengenes db
 pick_otus={
 
 	doc "Pick OTUs using open reference method and GreenGenes database clusted at 97% sequence identity"
@@ -131,14 +139,16 @@ pick_otus={
 		exec """
 			pick_open_reference_otus.py
 			--parallel
-			--jobs_to_start 10
+			--jobs_to_start 12
 			-o otus
 			-i slout/seqs_chimeras_filtered.fna
 			-p qiime_parameter_file.txt
 		"""
 	}
+	forward input
 }
 
+// Run a basic core diveristy analysis, using hardset subsampled read depth for first run
 core_diversity={
 
 	doc "Summarising biom and analyse core diverity using default depth of $SUBSAMPLE_DEPTH reads"
@@ -153,14 +163,14 @@ core_diversity={
 		-p qiime_parameter_file.txt
 		--recover_from_failure
 		-i otus/otu_table_mc2_w_tax_no_pynast_failures.biom
-		-m $MAPPING_FILE
+		-m $input
 		-t otus/rep_set.tre
 		-e $SUBSAMPLE_DEPTH
 	"""
 }
 
 
-// No input, runs off qiime sample sheet, parallelism where possible
+// Input qiime formatted sample sheet file. Everything runs from sample sheet, parallelism where possible
 Bpipe.run {
 	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus + core_diversity
 }

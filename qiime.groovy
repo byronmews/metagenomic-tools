@@ -8,6 +8,7 @@ import groovy.io.FileType
 
 MAPPING_FILE="faecal_dataset_N73_meta.tsv"
 CHIMERA_DB="/usr/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta"
+SUBSAMPLE_DEPTH="5000"
 
 
 // Validate mapping file, ignore barcode errors
@@ -75,19 +76,19 @@ chimera_removal={
 	exec "split -l 2000000 --additional-suffix .fna slout/seqs.fna chunk_ ; mv chunk* chimera_checked"
 
 	// Cycle split fastas in dir, using suffix to find file
-	produce("$newDir/combined_chimeras.txt") {
+	produce("combined_chimeras.txt") {
 
 		newDir = new File("chimera_checked")
 		def seqs = ~/.*.fna/
 		newDir.eachFileMatch(seqs) { file ->
 		
-			println file.getName()
-		
 			// Remove .fna suffix and create new dir
 			chimeraSplitDirName = file.getName()
 			chimeraSplitDirName = chimeraSplitDirName.substring(0, chimeraSplitDirName.length() - 4)
 			chimeraSplitDir = new File("chimera_checked/$chimeraSplitDirName")
-		
+
+			exec "echo Checking split: $chimeraSplitDir"	
+	
 			// Run usearch61 sequentially on splits, use multithreading
 			exec """
 				identify_chimeric_seqs.py -i $file
@@ -109,11 +110,14 @@ filter_fasta={
 
 	output.dir = "slout"	
 
-	exec """
-		filter_fasta.py -f slout/seqs.fna
-		-o $output.dir/seqs_chimeras_filtered.fna
-		-s chimera_checked/combined_chimeras.txt -n
-	"""
+	produce("seqs_chimeras_filtered.fna") {
+	
+		exec """
+			filter_fasta.py -f slout/seqs.fna
+			-o $output.dir/seqs_chimeras_filtered.fna
+			-s chimera_checked/combined_chimeras.txt -n
+		"""
+	}
 }
 
 
@@ -121,21 +125,45 @@ pick_otus={
 
 	doc "Pick OTUs using open reference method and GreenGenes database clusted at 97% sequence identity"
 
-	exec """
-		pick_open_reference_otus.py
-		--parallel
-		--jobs_to_start 10
-		-o otus
-		-i slout/seqs_chimeras_filtered.fna
-		-p qiime_parameter_file.txt
-	"""
 
-
+	produce("otus") {
+	
+		exec """
+			pick_open_reference_otus.py
+			--parallel
+			--jobs_to_start 10
+			-o otus
+			-i slout/seqs_chimeras_filtered.fna
+			-p qiime_parameter_file.txt
+		"""
+	}
 }
 
+core_diversity={
+
+	doc "Summarising biom and analyse core diverity using default depth of $SUBSAMPLE_DEPTH reads"
+
+	// Summarise biom file listing read counts per sample	
+	exec "biom summarize-table -i otus/otu_table_mc2_w_tax_no_pynast_failures.biom"
+
+	// Run core diversity analysis, default to set mapping depth
+	exec """
+		core_diversity_analyses.py -o cdout/
+		--parallel -O 12
+		-p qiime_parameter_file.txt
+		--recover_from_failure
+		-i otus/otu_table_mc2_w_tax_no_pynast_failures.biom
+		-m $MAPPING_FILE
+		-t otus/rep_set.tre
+		-e $SUBSAMPLE_DEPTH
+	"""
+}
 
 
 // No input, runs off qiime sample sheet, parallelism where possible
 Bpipe.run {
-	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus
+	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus + core_diversity
 }
+
+
+

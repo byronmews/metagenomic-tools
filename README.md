@@ -32,9 +32,9 @@ Produces standard Metaphlan profile, merges tables, and generates heatmaps at di
 - profiled_metagenome.txt: each sample profile
 - merged_abundance_table.txt: all sample profiles merged into one table
 - heatmaps/merged_abundance_table.[phylum|family|genus|species].png: heatmap, with columns clustered based on braycurtis distances, rows by correlation.
-  
-  3. QIIME core diviveristy analysis using bpipe
-  --------------
+
+3. QIIME core diviveristy analysis using bpipe
+--------------
   
 Expects joined fastq files within the directory, a qiime parameter file, and qiime sample mapping file (mapping file is given at commandline). All fastq within the sample mappng file are used in the analysis. 
 

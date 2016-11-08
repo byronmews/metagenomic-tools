@@ -33,7 +33,7 @@ Produces standard Metaphlan profile, merges tables, and generates heatmaps at di
 - merged_abundance_table.txt: all sample profiles merged into one table
 - heatmaps/merged_abundance_table.[phylum|family|genus|species].png: heatmap, with columns clustered based on braycurtis distances, rows by correlation.
 
-3. QIIME core diviveristy analysis using bpipe
+3. QIIME core diversity analysis using bpipe
 --------------
   
 Expects joined fastq files within the directory, a qiime parameter file, and qiime sample mapping file (mapping file is given at commandline). All fastq within the sample mappng file are used in the analysis. 
@@ -44,7 +44,7 @@ Sample ID is taken from column 1 of the mapping file, and corresponding fastq fi
   
 Produces 
  - mapping_file_check: check mapping file
- - slout: combined and labelled demulitplexed sequences
+ - slout: combined and labelled demultiplexed sequences
  - chimeria_checked: chimeric sequences identified within chunks of 1M sequences, and filtered from core fasta file
  - otus: OTU picking using open reference method and green genes (clutsered at default at 97% sequence identity)
  - cdout: core diversity analysis, using a hard set 5000 read depth

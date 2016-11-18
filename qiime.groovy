@@ -1,4 +1,4 @@
-// QIIME PE run for qc passed, screened reads and joined
+// QIIME run for qc passed, screened reads and joined reads
 //
 // Usage: bpipe run qiime.py my_qiime_mapping_file.tsv
 // Author: Graham Rose
@@ -100,9 +100,6 @@ chimera_removal={
 				-o $chimeraSplitDir
 				-r $CHIMERA_DB
 			"""
-	
-			// Merge indentified chimeras
-			//exec "cat $chimeraSplitDir/chimeras.txt >> $newDir/combined_chimeras.txt"
 		}
 		// Merge indentified chimeras
 		exec "cat chimera_checked/*/chimeras.txt >> $newDir/combined_chimeras.txt"

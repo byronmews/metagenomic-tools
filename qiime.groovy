@@ -1,6 +1,12 @@
-// QIIME run for qc passed, screened reads and joined reads
+// QIIME run for qc passed, screened reads and joined reads.
+// 
+// Everything runs from sample sheet, built from input file
+//
+// Workflow: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
+// 			> filter_fasta.py > pick_open_reference_otus.py > core_diversity_analyses.py
 //
 // Usage: bpipe run qiime.py my_qiime_mapping_file.tsv
+//
 // Author: Graham Rose
 //
 
@@ -20,37 +26,37 @@ validate_mapping={
 	forward input
 }
 
-// Split fastqs ignoring demultiplexing option. Names extracted from mapping file.
+// Split fastqs ignoring demultiplexing option. Names extracted from input mapping file.
 qiime_split={
 
 	doc "Run split_libraries_fastq.py using sample IDs and fastqs filenames extracted from mapping file"
 
-	// Generate 3 outputs. First block extracts sample IDs and names. Second block runs fastq splitter.
+	// Generate 3 outputs. First block extracts sample IDs and names. Second block runs fastq splitter
 	products = [
 	("qiime_split_lib_sample_ids.txt"),
 	("qiime_split_lib_sample_fastqs.txt"),
 	("slout")
 	]
 	
-	// First block. Write two files, stripping first header line in $MAPPING_FILE
+	// First block. Format file inputs. Write two files, stripping first header line in input mapping file
 	produce(products) {
 		exec "awk '{if (NR!=1) {print \$1}}' $input | tr '\\n' ',' > $output1"
 		exec "awk '{if (NR!=1) {print \$10}}' $input | tr '\\n' ',' > $output2"
 	}
 
-	// Read files to vars, removing orphan comman char in string
+	// Create variables from above two filenames, removing orphan comma character at end of string
 	String sampleIDs = new File('qiime_split_lib_sample_ids.txt').text
 	sampleIDs = sampleIDs.substring(0, sampleIDs.length() - 1)
 
 	String sampleFastqs = new File('qiime_split_lib_sample_fastqs.txt').text
 	sampleFastqs = sampleFastqs.substring(0,sampleFastqs.length() - 1)	
 
-	// Write files to bpipe stderr as debug
+	// Write files to bpipe stderr for debugging. Write as samples and fastq filenames as single column
 	def sampleIDCol1 = sampleIDs.replaceAll(',','\n')
 	def sampleFastqsCol2 = sampleFastqs.replaceAll(',','\n')
-	printf("Sample IDs:\n" + sampleIDCol1 + "\n\n" + "Sample Fastqs:\n" + sampleFastqsCol2) 
+	printf("Sample IDs:\n" + sampleIDCol1 + "\n\n" + "Sample Fastqs:\n" + sampleFastqsCol2)
 
-	// Second block. Run split_libraries_fastq.py using above variables.
+	// Second block. Run split_libraries_fastq.py using above variables. Adjust phred_offset value for project
 	produce(products) {
 		exec """
 		split_libraries_fastq.py 
@@ -60,12 +66,13 @@ qiime_split={
 		-m $input
 		-q 19 
 		--barcode_type 'not-barcoded'
+		--phred_offset 33
 		"""
 	}
 	forward input
 }
 
-// Remove chimeras, using the unclustered demultiplexed sequences
+// Remove chimeras using the unclustered demultiplexed sequences
 // Splits sequence set to avoid out of memory errors as only 32bit usearch in use
 chimera_removal={
 
@@ -75,17 +82,17 @@ chimera_removal={
 	output.dir = "chimera_checked"	
 	exec "mkdir -p $output.dir"	
 
-	// Split combined fasta into files with 1M seqs, mv to new dir
+	// Split combined fasta into files with 1M sequences, move to new directory
 	exec "split -l 2000000 --additional-suffix .fna slout/seqs.fna chunk_ ; mv chunk* chimera_checked"
 
-	// Cycle split fastas in dir, using suffix to find file
+	// Cycle split fastas in directory, using suffix to find file
 	produce("combined_chimeras.txt") {
 
 		newDir = new File("chimera_checked")
 		def seqs = ~/.*.fna/
 		newDir.eachFileMatch(seqs) { file ->
 		
-			// Remove .fna suffix and create new dir
+			// Remove .fna suffix and create new directory for each split
 			chimeraSplitDirName = file.getName()
 			chimeraSplitDirName = chimeraSplitDirName.substring(0, chimeraSplitDirName.length() - 4)
 			chimeraSplitDir = new File("chimera_checked/$chimeraSplitDirName")
@@ -101,7 +108,7 @@ chimera_removal={
 				-r $CHIMERA_DB
 			"""
 		}
-		// Merge indentified chimeras
+		// Merge indentified chimeras and write to file
 		exec "cat chimera_checked/*/chimeras.txt >> $newDir/combined_chimeras.txt"
 	}
 	forward input
@@ -167,7 +174,7 @@ core_diversity={
 }
 
 
-// Input qiime formatted sample sheet file. Everything runs from sample sheet, parallelism where possible
+// Input qiime formatted sample sheet file. Everything runs from sample sheet, built from input file, parallelism where possible
 Bpipe.run {
 	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus + core_diversity
 }

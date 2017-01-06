@@ -54,7 +54,7 @@ qiime_split={
 	// Write files to bpipe stderr for debugging. Write as samples and fastq filenames as single column
 	def sampleIDCol1 = sampleIDs.replaceAll(',','\n')
 	def sampleFastqsCol2 = sampleFastqs.replaceAll(',','\n')
-	printf("Sample IDs:\n" + sampleIDCol1 + "\n\n" + "Sample Fastqs:\n" + sampleFastqsCol2)
+	printf("Sample IDs:\n" + sampleIDCol1 + "\n\n" + "Sample Fastqs:\n" + sampleFastqsCol2)	
 
 	// Second block. Run split_libraries_fastq.py using above variables. Adjust phred_offset value for project
 	produce(products) {

@@ -5,7 +5,7 @@
 // Author: Graham Rose
 //
 
-KRAKEN_CUSTOM_DB="/srv/data0/dbs/kraken/standard_plus_1/"
+KRAKEN_CUSTOM_DB="/srv/data0/dbs/kraken/standard_220317"
 
 // List all PE fastq input 
 samples_in={

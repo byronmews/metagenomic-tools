@@ -5,7 +5,7 @@
 // Workflow: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
 // 			> filter_fasta.py > pick_open_reference_otus.py > core_diversity_analyses.py
 //
-// Usage: bpipe run qiime.py my_qiime_mapping_file.tsv
+// Usage: bpipe run qiime.groovy my_qiime_mapping_file.tsv
 //
 // Author: Graham Rose
 //
@@ -41,7 +41,7 @@ qiime_split={
 	// First block. Format file inputs. Write two files, stripping first header line in input mapping file
 	produce(products) {
 		exec "awk '{if (NR!=1) {print \$1}}' $input | tr '\\n' ',' > $output1"
-		exec "awk '{if (NR!=1) {print \$10}}' $input | tr '\\n' ',' > $output2"
+		exec "awk '{if (NR!=1) {print \$6}}' $input | tr '\\n' ',' > $output2"
 	}
 
 	// Create variables from above two filenames, removing orphan comma character at end of string

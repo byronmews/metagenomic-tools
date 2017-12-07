@@ -40,7 +40,7 @@ Expects joined fastq files within the directory, a qiime parameter file, and qii
 
 Sample ID is taken from column 1 of the mapping file, and corresponding fastq files within column 10. The remaining columns follow the standard format (see below).
 
-  $ bpipe run -r qiime.py my_qiime_mapping_file.tsv
+  $ bpipe run -r qiime.groovy my_qiime_mapping_file.tsv
   
 Produces the following files with suffixes:
 
@@ -53,8 +53,6 @@ Produces the following files with suffixes:
  
 Example QIIME mapping file format:
 
-| SampleID |	BarcodeSequence |	LinkerPrimerSequence  |	SampleIndex	|	SampleType	|	AmpliconType	|	SampleRun	|	GRUID	|	DRWFNumber	|	FileName	|	Description |
+| SampleID |	BarcodeSequence |	LinkerPrimerSequence |	SampleType |	Description | FileName |	AmpliconType |	SampleRun	| GRUID	|	Index	|	DRWFNumber |
 ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------- |
-1F.2 | TCCTGAGC |	GTAAGGAG |	1 |	F |	V3-V4 |	nafld_040716 |	1F |	001 |	1F-3-4.exFrags.trimmed.fastq |	1F-3-4_S1 |
-
-
+1F.2 | TCCTGAGCT |	AAAAAAAA |	F | 1F-3-4_S1 | 1F-3-4.exFrags.trimmed.fastq |	V3-V4 |	nafld_040716 |	1F |	1 |	1F-3-4.exFrags.trimmed.fastq |	1F-3-4_S1 |

@@ -38,7 +38,7 @@ Produces standard Metaphlan profile, merges tables, and generates heatmaps at di
   
 Expects joined fastq files within the directory, a qiime parameter file, and qiime sample mapping file (mapping file is given at commandline). All fastq within the sample mappng file are used in the analysis. 
 
-Sample ID is taken from column 1 of the mapping file, and corresponding fastq files within column 10. The remaining columns follow the standard format (see below).
+Sample ID is taken from column 1 of the mapping file, and corresponding fastq files within column 6. The remaining columns follow the standard format (see below). Add any more after the Desciption column.
 
   $ bpipe run -r qiime.groovy my_qiime_mapping_file.tsv
   

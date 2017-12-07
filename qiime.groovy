@@ -41,7 +41,7 @@ qiime_split={
 	// First block. Format file inputs. Write two files, stripping first header line in input mapping file
 	produce(products) {
 		exec "awk '{if (NR!=1) {print \$1}}' $input | tr '\\n' ',' > $output1"
-		exec "awk '{if (NR!=1) {print \$6}}' $input | tr '\\n' ',' > $output2"
+		exec "awk '{if (NR!=1) {print \$5}}' $input | tr '\\n' ',' > $output2"
 	}
 
 	// Create variables from above two filenames, removing orphan comma character at end of string

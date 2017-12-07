@@ -53,6 +53,6 @@ Produces the following files with suffixes:
  
 Example QIIME mapping file format:
 
-| SampleID |	BarcodeSequence |	LinkerPrimerSequence |	SampleType |	Description | FileName |	AmpliconType |	SampleRun	| GRUID	|	Index	|	DRWFNumber |
+| SampleID |	BarcodeSequence | LinkerPrimerSequence | SampleType | Filename | Description |	AmpliconType |	SampleRun	| GRUID	|	Index	|	DRWFNumber |
 ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------- |
-| 1F.2 | TCCTGAGCT |	AAAAAAAA |	F | 1F-3-4_S1 | 1F-3-4.extendedFrags.trimmed.fastq |	V3-V4 |	nafld_040716 |	1F |	1 |	1F-3-4_S1 |
+| 1F.2 | TCCTGAGCT |	AAAAAAAA |	F | 1F-3-4.extendedFrags.trimmed.fastq | 1F-3-4_S1 |	V3-V4 |	nafld_040716 |	1F |	1 |	1F-3-4_S1 |

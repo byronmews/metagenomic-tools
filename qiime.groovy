@@ -4,12 +4,13 @@
 //
 // See http://docs.bpipe.org/ for bipe.
 // 
-// Everything runs off the mapping file input eg. dataset.tsv. Example mapping file at bottom.
+// Everything runs off the mapping file given as input eg. dataset.tsv. Example mapping file at bottom.
 //
 // Workflow stages: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
 // 			> filter_fasta.py > pick_open_reference_otus.py > core_diversity_analyses.py
 //
-// Usage: bpipe run qiime.groovy my_qiime_mapping_file.tsv
+// Usage:
+//	bpipe run qiime.groovy my_qiime_mapping_file.tsv
 //
 // Author: Graham Rose
 //
@@ -17,7 +18,7 @@
 import groovy.io.FileType
 
 CHIMERA_DB="/usr/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta"
-SUBSAMPLE_DEPTH="5000"
+SUBSAMPLE_DEPTH="10000" // Hard set subsampling read depth. Change as required.
 
 
 // Validate mapping file, ignore barcode errors

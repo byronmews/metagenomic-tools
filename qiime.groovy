@@ -1,8 +1,12 @@
-// QIIME run for qc passed, screened reads and joined reads.
+// qiime.groovy
 // 
-// Everything runs from sample sheet, built from input file
+// QIIME pipeline for qc passed, fastqscreened, and joined PE reads. 
 //
-// Workflow: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
+// See http://docs.bpipe.org/ for bipe.
+// 
+// Everything runs off the mapping file input eg. dataset.tsv. Example mapping file at bottom.
+//
+// Workflow stages: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
 // 			> filter_fasta.py > pick_open_reference_otus.py > core_diversity_analyses.py
 //
 // Usage: bpipe run qiime.groovy my_qiime_mapping_file.tsv
@@ -178,6 +182,18 @@ core_diversity={
 Bpipe.run {
 	validate_mapping + qiime_split + chimera_removal + filter_fasta + pick_otus + core_diversity
 }
+
+//
+// Example mapping file input for 4 samples:
+//
+// #SampleID	BarcodeSequence	LinkerPrimerSequence	SampleType	FileName	Description
+// HamsterC1	GCGTAAGA	AAAAAAAA	Caecal	HamsterC1_S6_L001_no_hits.extendedFrags.trimmed.fastq	caecal_1
+// HamsterC2	CTCTCTAT	AAAAAAAA	Caecal	HamsterC2_S3_L001_no_hits.extendedFrags.trimmed.fastq	caecal_2
+// HamsterF1	TATCCTCT	AAAAAAAA	Faecal	HamsterF1_S20_L001_no_hits.extendedFrags.trimmed.fastq	faecal_1
+// HamsterF2	AGAGTAGA	AAAAAAAA	Faecal	HamsterF2_S19_L001_no_hits.extendedFrags.trimmed.fastq	faecal_2
+//
+//
+
 
 
 

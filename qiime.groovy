@@ -9,7 +9,8 @@
 // Workflow stages: validate_mapping_file.py > split_libraries_fastq.py > identify_chimeric_seqs.py 
 // 			> filter_fasta.py > pick_open_reference_otus.py > core_diversity_analyses.py
 //
-// Usage:
+// Usage. To run on all joined fastq files in the directory use the below command:
+//
 //	bpipe run qiime.groovy my_qiime_mapping_file.tsv
 //
 // Author: Graham Rose
